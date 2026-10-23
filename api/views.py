@@ -9,6 +9,11 @@ from rest_framework.views import APIView
 from employees.models import Employee
 from django.http import Http404
 from rest_framework import mixins, generics, viewsets
+from blogs.models import Blog, Comment
+from blogs.serializers import BlogSerializer, CommentSerialier
+from .pagination import CustomPagination
+from employees.filters import EmployeeFilter
+from rest_framework.filters import SearchFilter, OrderingFilter
 
 @api_view(['GET', 'POST'])
 def studentsView(request):
@@ -169,3 +174,28 @@ class EmployeeViewset(viewsets.ViewSet):
 class EmployeeViewset(viewsets.ModelViewSet):
   queryset = Employee.objects.all()
   serializer_class = EmployeeSerializer
+  pagination_class = CustomPagination
+  filterset_class = EmployeeFilter
+
+
+class BlogsView(generics.ListCreateAPIView):
+  queryset = Blog.objects.all()
+  serializer_class = BlogSerializer
+  filter_backends = [SearchFilter, OrderingFilter]
+  search_fields = ['^blog_title'] ### search for start with blog_title value
+  ordering_fields = ['id','blog_title']
+
+class CommentsView(generics.ListCreateAPIView):
+  queryset = Comment.objects.all()
+  serializer_class = CommentSerialier
+
+class BlogDetailView(generics.RetrieveUpdateDestroyAPIView):
+  queryset = Blog.objects.all()
+  serializer_class = BlogSerializer
+  lookup_field = 'pk'
+
+class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
+  queryset = Comment.objects.all()
+  serializer_class = CommentSerialier
+  lookup_field = 'pk'
+
